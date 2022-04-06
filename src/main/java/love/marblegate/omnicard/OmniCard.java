@@ -1,8 +1,16 @@
 package love.marblegate.omnicard;
 
-import love.marblegate.omnicard.registry.EntityRegistry;
-import love.marblegate.omnicard.registry.ItemRegistry;
+import love.marblegate.omnicard.capability.cardtype.CardTypeData;
+import love.marblegate.omnicard.card.CommonCard;
+import love.marblegate.omnicard.card.CommonCards;
+import love.marblegate.omnicard.item.CardSwitcher;
+import love.marblegate.omnicard.misc.Configuration;
+import love.marblegate.omnicard.registry.*;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,9 +26,14 @@ public class OmniCard {
 
     public OmniCard() {
         GeckoLib.initialize();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Configuration.COMMON_CONFIG);
 
         ItemRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         EntityRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        MobEffectRegistry.MOB_EFFECT.register(FMLJavaModLoadingContext.get().getModEventBus());
+        BlockRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        BlockEntityRegistry.BLOCKENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        SoundRegistry.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
 
         /*// Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -28,11 +41,12 @@ public class OmniCard {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMC);
         // Register the processIMC method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
+        */
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
         // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);*/
+        // MinecraftForge.EVENT_BUS.register(this);
     }
 
    /* private void setup(final FMLCommonSetupEvent event)
@@ -40,13 +54,40 @@ public class OmniCard {
         // some preinit code
         LOGGER.info("HELLO FROM PREINIT");
         LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
-    }
+    }*/
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        // do something that can only be done on the client
-        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().options);
+        // Item Property Override
+        event.enqueueWork(() ->
+        {
+            ItemProperties.register(ItemRegistry.CARD_STACK.get(),
+                    CardSwitcher.CARD_CATEGORY_PROPERTY_NAME, (stack, world, living, id) -> {
+                        CardTypeData cardTypeData = stack.getCapability(CardTypeData.CAPABILITY, null).orElseThrow(() -> new RuntimeException("Capability of CardTypeData goes wrong!"));
+                        CommonCard card = cardTypeData.get();
+                        if (card == CommonCards.RED) {
+                            return 0.1F;
+                        } else if (card == CommonCards.CORAL) {
+                            return 0.2F;
+                        } else if (card == CommonCards.GOLD) {
+                            return 0.3F;
+                        } else if (card == CommonCards.SEA_GREEN) {
+                            return 0.4F;
+                        } else if (card == CommonCards.AZURE) {
+                            return 0.5F;
+                        } else if (card == CommonCards.CERULEAN_BLUE) {
+                            return 0.6F;
+                        } else if (card == CommonCards.HELIOTROPE) {
+                            return 0.7F;
+                        } else if (card == CommonCards.INK) {
+                            return 0.8F;
+                        } else
+                            return 0;
+                    });
+        });
+
     }
 
+    /*
     private void enqueueIMC(final InterModEnqueueEvent event)
     {
         // some example code to dispatch IMC to another mod

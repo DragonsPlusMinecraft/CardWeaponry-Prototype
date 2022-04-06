@@ -1,9 +1,59 @@
 {
   "credit": "Made with Blockbench",
   "textures": {
-    "0": "omni_card:item/groupcard",
-    "particle": "omni_card:item/groupcard"
+    "0": "omni_card:card/standard/unknown_card",
+    "particle": "omni_card:card/standard/unknown_card"
   },
+  "overrides": [
+    {
+      "predicate": {
+        "omni_card:card_type": 0.1
+      },
+      "model": "omni_card:item/card_stack_red"
+    },
+    {
+      "predicate": {
+        "omni_card:card_type": 0.2
+      },
+      "model": "omni_card:item/card_stack_orange"
+    },
+    {
+      "predicate": {
+        "omni_card:card_type": 0.3
+      },
+      "model": "omni_card:item/card_stack_gold"
+    },
+    {
+      "predicate": {
+        "omni_card:card_type": 0.4
+      },
+      "model": "omni_card:item/card_stack_green"
+    },
+    {
+      "predicate": {
+        "omni_card:card_type": 0.5
+      },
+      "model": "omni_card:item/card_stack_sky"
+    },
+    {
+      "predicate": {
+        "omni_card:card_type": 0.6
+      },
+      "model": "omni_card:item/card_stack_blue"
+    },
+    {
+      "predicate": {
+        "omni_card:card_type": 0.7
+      },
+      "model": "omni_card:item/card_stack_violet"
+    },
+    {
+      "predicate": {
+        "omni_card:card_type": 0.8
+      },
+      "model": "omni_card:item/card_stack_black"
+    }
+  ],
   "elements": [
     {
       "from": [
