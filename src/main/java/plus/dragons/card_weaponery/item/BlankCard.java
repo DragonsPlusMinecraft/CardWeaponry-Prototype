@@ -1,6 +1,5 @@
 package plus.dragons.card_weaponery.item;
 
-import plus.dragons.card_weaponery.card.CommonCards;
 import plus.dragons.card_weaponery.entity.FlyingCardEntity;
 import plus.dragons.card_weaponery.misc.Configuration;
 import plus.dragons.card_weaponery.misc.ModGroup;
@@ -15,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 public class BlankCard extends Item {
 
@@ -27,15 +25,10 @@ public class BlankCard extends Item {
     public InteractionResultHolder<ItemStack> use(Level worldIn, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (!worldIn.isClientSide()) {
-            Vec3 vector3d = player.getViewVector(1.0F);
-
-            double x = (vector3d.x * Configuration.FLYING_CARD_SPEED.get());
-            double y = (vector3d.y * Configuration.FLYING_CARD_SPEED.get());
-            double z = (vector3d.z * Configuration.FLYING_CARD_SPEED.get());
-
-            FlyingCardEntity flyingCardEntity = new FlyingCardEntity(player, x, y, z, worldIn, CommonCards.BLANK);
+            FlyingCardEntity flyingCardEntity = new FlyingCardEntity(player, worldIn);
             flyingCardEntity.setOwner(player);
             flyingCardEntity.setPos(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
+            flyingCardEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0,Configuration.FLYING_CARD_SPEED.get().floatValue(), 0);
             worldIn.addFreshEntity(flyingCardEntity);
 
             double d0 = -Mth.sin(player.getYRot() * ((float)Math.PI / 180F));

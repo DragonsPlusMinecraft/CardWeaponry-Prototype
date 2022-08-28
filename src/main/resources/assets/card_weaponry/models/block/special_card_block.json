@@ -1,6 +1,0 @@
-{
-  "parent": "block/block",
-  "textures": {
-    "particle": "omni_card:block/empty_particle"
-  }
-}

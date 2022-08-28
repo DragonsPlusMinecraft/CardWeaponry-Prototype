@@ -1,7 +1,5 @@
 package plus.dragons.card_weaponery.entity;
 
-import plus.dragons.card_weaponery.card.CommonCard;
-import plus.dragons.card_weaponery.card.CommonCards;
 import plus.dragons.card_weaponery.misc.Configuration;
 import plus.dragons.card_weaponery.registry.EntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -28,28 +26,27 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class CardTrapEntity extends Entity implements IEntityAdditionalSpawnData {
-    private CommonCard card;
     private UUID ownerUUID;
 
-    public CardTrapEntity(EntityType<? extends CardTrapEntity> p_i50173_1_, Level p_i50173_2_) {
-        super(p_i50173_1_, p_i50173_2_);
+    public CardTrapEntity(EntityType<? extends CardTrapEntity> entityType, Level level) {
+        super(entityType, level);
     }
 
-    public CardTrapEntity(Level world, CommonCard card) {
+    public CardTrapEntity(Level world) {
         super(EntityRegistry.CARD_TRAP.get(), world);
-        this.card = card;
     }
 
     @Override
     public float getBrightness() {
-        return Configuration.TRAP_CARD_BRIGHTNESS.get().floatValue();
+        // return Configuration.TRAP_CARD_BRIGHTNESS.get().floatValue();
+        return 0;
     }
 
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         if (!player.level.isClientSide()) {
-            if (card.getRetrievedItem().isPresent())
-                player.level.addFreshEntity(new ItemEntity(player.level, this.getX(), this.getY(), this.getZ(), card.getRetrievedItem().get().getDefaultInstance()));
+            /*if (card.getRetrievedItem().isPresent())
+                player.level.addFreshEntity(new ItemEntity(player.level, this.getX(), this.getY(), this.getZ(), card.getRetrievedItem().get().getDefaultInstance()));*/
             remove(RemovalReason.DISCARDED);
         }
         return InteractionResult.sidedSuccess(player.level.isClientSide());
@@ -108,7 +105,7 @@ public class CardTrapEntity extends Entity implements IEntityAdditionalSpawnData
 
     private void activateTrap(List<LivingEntity> targets) {
         for (LivingEntity livingEntity : targets)
-            card.activate(this, livingEntity);
+            // card.activate(this, livingEntity);
         remove(RemovalReason.DISCARDED);
     }
 
@@ -143,20 +140,14 @@ public class CardTrapEntity extends Entity implements IEntityAdditionalSpawnData
     protected void defineSynchedData() {
     }
 
-    public CommonCard getCardType() {
-        return card;
-    }
-
     @Override
     public void readAdditionalSaveData(CompoundTag compoundNBT) {
-        card = CommonCards.fromByte(compoundNBT.getByte("card_type"));
         if (compoundNBT.contains("owner_uuid"))
             ownerUUID = compoundNBT.getUUID("owner_uuid");
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compoundNBT) {
-        compoundNBT.putByte("card_type", CommonCards.toByte(card));
         if (ownerUUID != null) {
             compoundNBT.putUUID("owner_uuid", ownerUUID);
         }
@@ -170,14 +161,12 @@ public class CardTrapEntity extends Entity implements IEntityAdditionalSpawnData
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
-        buffer.writeByte(CommonCards.toByte(card));
-        buffer.writeUUID(ownerUUID);
+        // additional spawn data
     }
 
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
-        card = CommonCards.fromByte(additionalData.readByte());
-        ownerUUID = additionalData.readUUID();
+        // additional spawn data
     }
 
 }

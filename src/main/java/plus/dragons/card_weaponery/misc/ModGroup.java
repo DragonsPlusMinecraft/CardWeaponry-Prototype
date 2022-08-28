@@ -1,5 +1,6 @@
 package plus.dragons.card_weaponery.misc;
 
+import plus.dragons.card_weaponery.CardWeaponry;
 import plus.dragons.card_weaponery.registry.ItemRegistry;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -11,7 +12,7 @@ public class ModGroup {
     public static class GeneralGroup extends CreativeModeTab {
 
         public GeneralGroup() {
-            super("omni_card.general");
+            super(CardWeaponry.MODID + ".general");
         }
 
         @Override

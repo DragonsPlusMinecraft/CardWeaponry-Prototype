@@ -3,56 +3,7 @@
     "replace": true,
     "sounds": [
       {
-        "name": "omni_card:throw_card",
-        "stream": true
-      }
-    ]
-  },
-  "colored_card_hit": {
-    "replace": true,
-    "sounds": [
-      {
-        "name": "omni_card:colored_card_hit",
-        "stream": true
-      }
-    ]
-  },
-  "elemental_card_hit": {
-    "replace": true,
-    "sounds": [
-      {
-        "name": "omni_card:elemental_card_hit",
-        "stream": true
-      }
-    ]
-  },
-  "trap_card_hit": {
-    "replace": true,
-    "sounds": [
-      {
-        "name": "omni_card:trap_card_hit",
-        "stream": true
-      }
-    ]
-  },
-  "cutting_card": {
-    "replace": true,
-    "sounds": [
-      {
-        "name": "omni_card:cutting_card_1",
-        "stream": true
-      },
-      {
-        "name": "omni_card:cutting_card_2",
-        "stream": true
-      }
-    ]
-  },
-  "block_card_on_run": {
-    "replace": true,
-    "sounds": [
-      {
-        "name": "omni_card:block_card_on_run",
+        "name": "card_weaponry:throw_card",
         "stream": true
       }
     ]

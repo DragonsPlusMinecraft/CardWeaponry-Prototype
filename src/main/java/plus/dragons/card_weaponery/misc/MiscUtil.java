@@ -78,11 +78,6 @@ public class MiscUtil {
         }
     }
 
-    public static void applyHolyFlameInArea(ServerLevel world, AABB aabb, int ticks) {
-        world.getEntities((Entity) null, aabb, entity -> entity instanceof LivingEntity && isHostile((LivingEntity) entity, false))
-                .forEach(entity -> ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffectRegistry.HOLY_FLAME.get(), ticks)));
-    }
-
     public static void applyHugeDamageThenApplyFireInArea(ServerLevel world, AABB aabb, float damage, int fireSecond) {
         world.getEntities((Entity) null, aabb, entity -> entity instanceof LivingEntity && isHostile((LivingEntity) entity, false))
                 .forEach(entity -> {

@@ -10,18 +10,6 @@ import javax.annotation.Nullable;
 
 public class ModDamage {
 
-    public static DamageSource causeHolyFlameDamage() {
-        return new SimpleDeathMessageDamageSource("omni_card.holy_fire");
-    }
-
-    public static DamageSource causeLethalPoisonDamage() {
-        return new SimpleDeathMessageDamageSource("omni_card.lethal_poison").bypassArmor();
-    }
-
-    public static DamageSource causeExplosion() {
-        return new SimpleDeathMessageDamageSource("omni_card.explosion").setExplosion();
-    }
-
     public static DamageSource causeCardDamage(Entity damageSource, @Nullable Entity owner) {
         if (owner instanceof LivingEntity)
             return DamageSource.mobAttack((LivingEntity) owner);

@@ -1,9 +1,0 @@
-{
-  "variants": {
-    "": [
-      {
-        "model": "omni_card:block/special_card_block"
-      }
-    ]
-  }
-}

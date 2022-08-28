@@ -1,15 +1,9 @@
 package plus.dragons.card_weaponery;
 
-import plus.dragons.card_weaponery.capability.cardtype.CardTypeData;
-import plus.dragons.card_weaponery.card.CommonCard;
-import plus.dragons.card_weaponery.card.CommonCards;
-import plus.dragons.card_weaponery.item.CardSwitcher;
 import plus.dragons.card_weaponery.misc.Configuration;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +35,7 @@ public class CardWeaponry {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
         */
         // Register the doClientStuff method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        // FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
         // Register ourselves for server and other game events we are interested in
         // MinecraftForge.EVENT_BUS.register(this);
@@ -54,36 +48,6 @@ public class CardWeaponry {
         LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
     }*/
 
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        // Item Property Override
-        event.enqueueWork(() ->
-        {
-            ItemProperties.register(ItemRegistry.CARD_STACK.get(),
-                    CardSwitcher.CARD_CATEGORY_PROPERTY_NAME, (stack, world, living, id) -> {
-                        CardTypeData cardTypeData = stack.getCapability(CardTypeData.CAPABILITY, null).orElseThrow(() -> new RuntimeException("Capability of CardTypeData goes wrong!"));
-                        CommonCard card = cardTypeData.get();
-                        if (card == CommonCards.RED) {
-                            return 0.1F;
-                        } else if (card == CommonCards.CORAL) {
-                            return 0.2F;
-                        } else if (card == CommonCards.GOLD) {
-                            return 0.3F;
-                        } else if (card == CommonCards.SEA_GREEN) {
-                            return 0.4F;
-                        } else if (card == CommonCards.AZURE) {
-                            return 0.5F;
-                        } else if (card == CommonCards.CERULEAN_BLUE) {
-                            return 0.6F;
-                        } else if (card == CommonCards.HELIOTROPE) {
-                            return 0.7F;
-                        } else if (card == CommonCards.INK) {
-                            return 0.8F;
-                        } else
-                            return 0;
-                    });
-        });
-
-    }
 
     /*
     private void enqueueIMC(final InterModEnqueueEvent event)
