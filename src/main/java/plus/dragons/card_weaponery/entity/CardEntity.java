@@ -1,7 +1,14 @@
 package plus.dragons.card_weaponery.entity;
 
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.ForgeEventFactory;
+import plus.dragons.card_weaponery.CardWeaponryForgeRegistries;
+import plus.dragons.card_weaponery.card.CardFeature;
 import plus.dragons.card_weaponery.misc.Configuration;
+import plus.dragons.card_weaponery.misc.ModDamage;
 import plus.dragons.card_weaponery.registry.EntityRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -26,24 +33,33 @@ import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 import plus.dragons.card_weaponery.registry.ItemRegistry;
 
-public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpawnData {
-    private static final EntityDataAccessor<Boolean> CAN_PICK_UP = SynchedEntityData.defineId(FlyingCardEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Integer> LIFETIME = SynchedEntityData.defineId(FlyingCardEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Float> ROTATION = SynchedEntityData.defineId(FlyingCardEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> ROTATION_SPEED = SynchedEntityData.defineId(FlyingCardEntity.class, EntityDataSerializers.FLOAT);
+import java.util.*;
 
-    public FlyingCardEntity(EntityType<? extends FlyingCardEntity> entityType, Level level) {
+public class CardEntity extends Projectile implements IEntityAdditionalSpawnData {
+    private static final EntityDataAccessor<Boolean> CAN_PICK_UP = SynchedEntityData.defineId(CardEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> LIFETIME = SynchedEntityData.defineId(CardEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> ROTATION = SynchedEntityData.defineId(CardEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ROTATION_SPEED = SynchedEntityData.defineId(CardEntity.class, EntityDataSerializers.FLOAT);
+
+    private List<CardFeature> completeFeatures = new ArrayList<>();
+    private List<CardFeature> hitBlockFeatures = new ArrayList<>();
+    private List<CardFeature> hitEntityFeatures = new ArrayList<>();
+    private List<CardFeature> onFlyFeatures = new ArrayList<>();
+    private List<CardFeature> movementFeatures = new ArrayList<>();
+    private float damage = Configuration.CARD_DAMAGE.get().floatValue();
+
+    public CardEntity(EntityType<? extends CardEntity> entityType, Level level) {
         super(entityType, level);
     }
 
-    public FlyingCardEntity(LivingEntity livingEntity, Level level) {
+    public CardEntity(LivingEntity livingEntity, Level level, List<CardFeature> features) {
         super(EntityRegistry.FLYING_CARD.get(), level);
-        this.moveTo(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), this.getYRot(), this.getXRot());
         this.reapplyPosition();
         this.entityData.set(CAN_PICK_UP, false);
         this.entityData.set(LIFETIME, 20*60);
         this.entityData.set(ROTATION,0.0F);
         this.entityData.set(ROTATION_SPEED,20.0F);
+        this.importFeatures(features);
     }
 
     @Override
@@ -69,15 +85,14 @@ public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpa
         // Removal Check
         Entity entity = this.getOwner();
         if (!level.isClientSide()) {
-            // This Height limit needs to be changed in 1.17
-            if (blockPosition().getY() >= 384)
+            if (blockPosition().getY() >= 384 && blockPosition().getY() <= -102)
                 remove(RemovalReason.DISCARDED);
-            if (getRemainingLifetime() <= 0) {
-                this.spawnAtLocation(ItemRegistry.BLANK_CARD.get().getDefaultInstance(), 0.1F);
+            if (shouldBecomeItemStack()) {
+                this.spawnAtLocation(toItemStack(), 0.1F);
                 remove(RemovalReason.DISCARDED);
             } else {
                 setRemainingLifetime(getRemainingLifetime()-1);
-                // If it stop in middle path
+                // If it stop in middle path, set it to retrievable
                 if(!justBeenThrown(20) && getDeltaMovement().lengthSqr()<0.1){
                     var s = getRotationSpeedTick();
                     if(s!=0){
@@ -86,36 +101,30 @@ public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpa
                     }
                     setPickUpStatus(true);
                 }
-                // Pickup Card on Ground
-                if (canPickUp() && qualifiedToBeRetrieved()) {
-                    this.spawnAtLocation(ItemRegistry.BLANK_CARD.get().getDefaultInstance(), 0.1F);
-                    remove(RemovalReason.DISCARDED);
-                }
             }
         }
 
         if (this.level.isClientSide || (entity == null || !entity.isRemoved()) && this.level.hasChunkAt(this.blockPosition())) {
             super.tick();
-            // Handle hit result
             HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
-            if (hitresult.getType() != HitResult.Type.MISS && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, hitresult)) {
+            if (hitresult.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, hitresult)) {
                 this.onHit(hitresult);
             }
-            // Handle on fly event
             if(!canPickUp()){
-                // card.onFly(this);
+                for(CardFeature feature:onFlyFeatures){
+                    feature.onFly(this);
+                }
             }
             // Handle Movement
             this.checkInsideBlocks();
             Vec3 vec3 = this.getDeltaMovement();
+            for(CardFeature feature:movementFeatures){
+                vec3 = feature.modifyMovement(this, this.getDeltaMovement());
+            }
             double d0 = this.getX() + vec3.x;
             double d1 = this.getY() + vec3.y;
             double d2 = this.getZ() + vec3.z;
-            float f = this.getInertia();
-            if (this.isInWater()) {
-                f = 0.9F;
-            }
-            this.setDeltaMovement(vec3.scale(f));
+            this.setDeltaMovement(vec3);
             this.setPos(d0, d1, d2);
             if(!level.isClientSide()&&!canPickUp()){
                 var r = getRotationAngle();
@@ -143,10 +152,6 @@ public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpa
         return super.canHitEntity(entity) && !entity.noPhysics;
     }
 
-    protected float getInertia() {
-        return 1.0F;
-    }
-
     @Override
     protected void onHit(HitResult rayTraceResult) {
         super.onHit(rayTraceResult);
@@ -155,23 +160,40 @@ public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpa
     @Override
     protected void onHitEntity(EntityHitResult entityRayTraceResult) {
         super.onHitEntity(entityRayTraceResult);
-        Entity entity = entityRayTraceResult.getEntity();
-        if (entity instanceof LivingEntity && !canPickUp()) {
-            // card.hitEntity(this, (LivingEntity) entity);
-            remove(RemovalReason.DISCARDED);
+        if(!canPickUp()){
+            Entity entity = entityRayTraceResult.getEntity();
+            if (entity instanceof LivingEntity && !canPickUp()) {
+                for(CardFeature feature:hitEntityFeatures){
+                    feature.onHitEntity(this,entityRayTraceResult);
+                }
+                if(damage>0){
+                    entity.hurt(ModDamage.causeCardDamage(this,this.getOwner()),damage);
+                }else if(damage<0){
+                    ((LivingEntity) entity).heal(damage);
+                }
+                remove(RemovalReason.DISCARDED);
+            }
         }
     }
 
     @Override
     protected void onHitBlock(BlockHitResult blockRayTraceResult) {
         super.onHitBlock(blockRayTraceResult);
-        // card.hitBlock(this, blockRayTraceResult.getBlockPos(), blockRayTraceResult.getDirection());
+        for(CardFeature feature:hitBlockFeatures){
+            feature.onHitBlock(this,blockRayTraceResult);
+        }
         if (!this.isRemoved())
             stayOnBlock(blockRayTraceResult);
     }
 
-    private boolean qualifiedToBeRetrieved() {
-        return !level.getEntities(this, this.getBoundingBox(), (entity -> entity instanceof Player)).isEmpty();
+    private boolean shouldBecomeItemStack() {
+        if(getRemainingLifetime() <= 0) return true;
+        return canPickUp() && !level.getEntities(this, this.getBoundingBox(), (entity -> entity instanceof Player)).isEmpty();
+    }
+
+    private ItemStack toItemStack(){
+        // TODO
+        return ItemRegistry.BLANK_CARD.get().getDefaultInstance();
     }
 
     private void stayOnBlock(BlockHitResult blockRayTraceResult) {
@@ -194,6 +216,12 @@ public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpa
         setPickUpStatus(compoundNBT.getBoolean("can_pickup"));
         setRotationSpeedTick(compoundNBT.getFloat("rotation_speed"));
         setRotationAngle(compoundNBT.getFloat("rotation"));
+        var a = compoundNBT.getInt("feature_count");
+        List<CardFeature> ar = new ArrayList<>();
+        for(int i=1;i<=a;i++){
+            ar.add(CardWeaponryForgeRegistries.CARD_FEATURES.get().getValue(new ResourceLocation(compoundNBT.getString("feature_" + i))));
+        }
+        importFeatures(ar);
     }
 
     @Override
@@ -203,7 +231,41 @@ public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpa
         compoundNBT.putBoolean("can_pickup", canPickUp());
         compoundNBT.putFloat("rotation_speed", getRotationSpeedTick());
         compoundNBT.putFloat("rotation", getRotationAngle());
+        compoundNBT.putInt("feature_count",completeFeatures.size());
+        var a = 1;
+        for(var feature:completeFeatures){
+            compoundNBT.putString("feature_" + a,feature.getRegistryName().toString());
+            a++;
+        }
     }
+
+    private void importFeatures(List<CardFeature> features){
+        completeFeatures.addAll(features);
+        completeFeatures.sort(Comparator.comparingInt(CardFeature::priority));
+        var checkSet = new HashSet<>(features);
+        hitBlockFeatures.addAll(completeFeatures);
+        hitEntityFeatures.addAll(completeFeatures);
+        movementFeatures.addAll(completeFeatures);
+        onFlyFeatures.addAll(completeFeatures);
+        for(CardFeature cardFeature: checkSet){
+            if(cardFeature.blockEventMap()!=null){
+                for(Map.Entry<CardFeature.BlockEventType,Set<CardFeature>> entry: cardFeature.blockEventMap().entrySet()){
+                    if(entry.getKey() == CardFeature.BlockEventType.HIT_ENTITY)
+                        hitEntityFeatures.removeIf(e->entry.getValue().contains(e));
+                    if(entry.getKey() == CardFeature.BlockEventType.HIT_BLOCK)
+                        hitBlockFeatures.removeIf(e->entry.getValue().contains(e));
+                    if(entry.getKey() == CardFeature.BlockEventType.ON_FLY)
+                        onFlyFeatures.removeIf(e->entry.getValue().contains(e));
+                    if(entry.getKey() == CardFeature.BlockEventType.MOVEMENT_MODIFICATION)
+                        movementFeatures.removeIf(e->entry.getValue().contains(e));
+                }
+            }
+        }
+        for(CardFeature cardFeature:completeFeatures){
+            damage = cardFeature.modifyDamage(damage);
+        }
+    }
+
 
     @Override
     public Packet<?> getAddEntityPacket() {
@@ -212,12 +274,20 @@ public class FlyingCardEntity extends Projectile implements IEntityAdditionalSpa
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
-        // additional spawn data
+        buffer.writeInt(completeFeatures.size());
+        for(var feature:completeFeatures){
+            buffer.writeRegistryId(feature);
+        }
     }
 
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
-        // additional spawn data
+        var size = additionalData.readInt();
+        List<CardFeature> ar = new ArrayList<>();
+        for(int i=0;i<size;i++){
+            ar.add(additionalData.readRegistryId());
+        }
+        this.importFeatures(ar);
     }
 
     @Override

@@ -26,6 +26,8 @@ public class CardWeaponry {
         BlockRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         BlockEntityRegistry.BLOCKENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
         SoundRegistry.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ForgeRegistryEntryRegistry.register(FMLJavaModLoadingContext.get().getModEventBus());
+        CardFeatureRegistry.CARD_FEATURES.register(FMLJavaModLoadingContext.get().getModEventBus());
 
         /*// Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);

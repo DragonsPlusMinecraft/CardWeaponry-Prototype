@@ -12,7 +12,7 @@ public class RendererRegistry {
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onClientSetUpEvent(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(EntityRegistry.FLYING_CARD.get(), FlyingCardEntityRenderer::new);
+        event.registerEntityRenderer(EntityRegistry.FLYING_CARD.get(), CardEntityRenderer::new);
         event.registerEntityRenderer(EntityRegistry.CARD_TRAP.get(), CardTrapEntityRenderer::new);
     }
 }

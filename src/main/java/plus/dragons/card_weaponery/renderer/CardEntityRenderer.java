@@ -9,25 +9,26 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import plus.dragons.card_weaponery.CardWeaponry;
-import plus.dragons.card_weaponery.entity.FlyingCardEntity;
+import plus.dragons.card_weaponery.entity.CardEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import plus.dragons.card_weaponery.model.CardModel;
 
-public class FlyingCardEntityRenderer extends EntityRenderer<FlyingCardEntity> {
+public class CardEntityRenderer extends EntityRenderer<CardEntity> {
 
     private static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation(CardWeaponry.MODID,"textures/entity/white_card.png");
-    private final CardModel<FlyingCardEntity> model;
+    private final CardModel<CardEntity> model;
 
-    public FlyingCardEntityRenderer(EntityRendererProvider.Context context) {
+    public CardEntityRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.model = new CardModel<>(context.bakeLayer(CardModel.LAYER));
         shadowRadius = 0.03F;
     }
 
     @Override
-    public void render(FlyingCardEntity pEntity, float pEntityYaw, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight) {
+    public void render(CardEntity pEntity, float pEntityYaw, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight) {
         // Do not render name plate
         // super.render(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
+        // TODO need solve "vanish when half way in" problem
         pPoseStack.pushPose();
         pPoseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(pPartialTick, pEntity.yRotO, pEntity.getYRot()) - 90.0F));
         pPoseStack.mulPose(Vector3f.ZP.rotationDegrees(Mth.lerp(pPartialTick, pEntity.xRotO, pEntity.getXRot())));
@@ -38,7 +39,7 @@ public class FlyingCardEntityRenderer extends EntityRenderer<FlyingCardEntity> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(FlyingCardEntity pEntity) {
+    public ResourceLocation getTextureLocation(CardEntity pEntity) {
         return TEXTURE_LOCATION;
     }
 }

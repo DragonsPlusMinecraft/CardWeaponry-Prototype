@@ -1,8 +1,9 @@
 package plus.dragons.card_weaponery.item;
 
-import plus.dragons.card_weaponery.entity.FlyingCardEntity;
+import plus.dragons.card_weaponery.entity.CardEntity;
 import plus.dragons.card_weaponery.misc.Configuration;
 import plus.dragons.card_weaponery.misc.ModGroup;
+import plus.dragons.card_weaponery.registry.CardFeatureRegistry;
 import plus.dragons.card_weaponery.registry.SoundRegistry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -15,6 +16,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
+
 public class BlankCard extends Item {
 
     public BlankCard() {
@@ -25,11 +28,11 @@ public class BlankCard extends Item {
     public InteractionResultHolder<ItemStack> use(Level worldIn, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (!worldIn.isClientSide()) {
-            FlyingCardEntity flyingCardEntity = new FlyingCardEntity(player, worldIn);
-            flyingCardEntity.setOwner(player);
-            flyingCardEntity.setPos(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
-            flyingCardEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0,Configuration.FLYING_CARD_SPEED.get().floatValue(), 0);
-            worldIn.addFreshEntity(flyingCardEntity);
+            CardEntity cardEntity = new CardEntity(player, worldIn, List.of(CardFeatureRegistry.BASIC.get()));
+            cardEntity.setOwner(player);
+            cardEntity.setPos(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
+            cardEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, Configuration.CARD_SPEED.get().floatValue(), 0);
+            worldIn.addFreshEntity(cardEntity);
 
             double d0 = -Mth.sin(player.getYRot() * ((float)Math.PI / 180F));
             double d1 = Mth.cos(player.getYRot() * ((float)Math.PI / 180F));
