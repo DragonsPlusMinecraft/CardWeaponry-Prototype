@@ -1,7 +1,7 @@
 package plus.dragons.card_weaponery.misc;
 
 import plus.dragons.card_weaponery.CardWeaponry;
-import plus.dragons.card_weaponery.registry.ItemRegistry;
+import plus.dragons.card_weaponery.ini.ItemRegistry;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 

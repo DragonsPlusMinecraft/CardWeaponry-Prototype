@@ -1,15 +1,14 @@
 package plus.dragons.card_weaponery.entity;
 
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.ForgeEventFactory;
-import plus.dragons.card_weaponery.CardWeaponryForgeRegistries;
+import plus.dragons.card_weaponery.forgeregistry.CardWeaponryRegistries;
 import plus.dragons.card_weaponery.card.CardFeature;
 import plus.dragons.card_weaponery.misc.Configuration;
 import plus.dragons.card_weaponery.misc.ModDamage;
-import plus.dragons.card_weaponery.registry.EntityRegistry;
+import plus.dragons.card_weaponery.ini.EntityRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -31,7 +30,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
-import plus.dragons.card_weaponery.registry.ItemRegistry;
+import plus.dragons.card_weaponery.ini.ItemRegistry;
 
 import java.util.*;
 
@@ -219,7 +218,7 @@ public class CardEntity extends Projectile implements IEntityAdditionalSpawnData
         var a = compoundNBT.getInt("feature_count");
         List<CardFeature> ar = new ArrayList<>();
         for(int i=1;i<=a;i++){
-            ar.add(CardWeaponryForgeRegistries.CARD_FEATURES.get().getValue(new ResourceLocation(compoundNBT.getString("feature_" + i))));
+            ar.add(CardWeaponryRegistries.CARD_FEATURES.get().getValue(new ResourceLocation(compoundNBT.getString("feature_" + i))));
         }
         importFeatures(ar);
     }

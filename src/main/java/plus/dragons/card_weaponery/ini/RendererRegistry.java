@@ -1,4 +1,4 @@
-package plus.dragons.card_weaponery.registry;
+package plus.dragons.card_weaponery.ini;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

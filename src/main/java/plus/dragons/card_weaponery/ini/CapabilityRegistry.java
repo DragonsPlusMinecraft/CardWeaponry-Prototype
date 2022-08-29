@@ -1,4 +1,4 @@
-package plus.dragons.card_weaponery.registry;
+package plus.dragons.card_weaponery.ini;
 
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

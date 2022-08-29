@@ -1,4 +1,4 @@
-package plus.dragons.card_weaponery.registry;
+package plus.dragons.card_weaponery.ini;
 
 import plus.dragons.card_weaponery.CardWeaponry;
 import net.minecraft.world.effect.MobEffect;

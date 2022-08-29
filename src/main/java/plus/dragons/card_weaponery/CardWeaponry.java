@@ -7,7 +7,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import plus.dragons.card_weaponery.registry.*;
+import plus.dragons.card_weaponery.ini.*;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("card_weaponry")
@@ -20,14 +20,17 @@ public class CardWeaponry {
     public CardWeaponry() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Configuration.COMMON_CONFIG);
 
-        ItemRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        EntityRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        MobEffectRegistry.MOB_EFFECT.register(FMLJavaModLoadingContext.get().getModEventBus());
-        BlockRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        BlockEntityRegistry.BLOCKENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        SoundRegistry.SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        ForgeRegistryEntryRegistry.register(FMLJavaModLoadingContext.get().getModEventBus());
-        CardFeatureRegistry.CARD_FEATURES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        var eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ItemRegistry.ITEMS.register(eventBus);
+        EntityRegistry.ENTITIES.register(eventBus);
+        MobEffectRegistry.MOB_EFFECT.register(eventBus);
+        BlockRegistry.BLOCKS.register(eventBus);
+        BlockEntityRegistry.BLOCKENTITIES.register(eventBus);
+        SoundRegistry.SOUNDS.register(eventBus);
+        ForgeRegistryEntryRegistry.register(eventBus);
+        CardFeatureRegistry.CARD_FEATURES.register(eventBus);
+        RecipeRegistry.RECIPE_TYPES.register(eventBus);
+        RecipeRegistry.RECIPE_SERIALIZERS.register(eventBus);
 
         /*// Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);

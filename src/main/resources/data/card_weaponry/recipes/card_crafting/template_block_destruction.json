@@ -1,0 +1,11 @@
+{
+  "type": "card_weaponry:card_crafting",
+  "ingredients": [
+    {
+      "item": "minecraft:glass"
+    }
+  ],
+  "features": [
+    "card_weaponry:waterproof"
+  ]
+}
